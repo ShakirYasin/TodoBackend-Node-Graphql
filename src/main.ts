@@ -21,6 +21,9 @@ import { useResponseCache } from '@graphql-yoga/plugin-response-cache'
 import { useGraphQlJit } from '@envelop/graphql-jit'
 import { WebSocketServer } from 'ws'
 import { useServer } from 'graphql-ws/lib/use/ws'
+import { YogaInitialContext } from '@graphql-yoga/node'
+import type {NexusGenAllTypes} from "../nexus-typegen"
+
 
 const app = express()
 
@@ -29,6 +32,10 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(compression())
 app.use(helmet())
+
+export interface GraphQLContext extends YogaInitialContext  {
+  user: NexusGenAllTypes['User']
+}
 
 const yoga = createYoga<{ req: Request; res: Response }>({
   schema,
@@ -61,132 +68,132 @@ const yoga = createYoga<{ req: Request; res: Response }>({
 
 // return serverGraphql(req, res);
 
-const sessionStore = new MongoStore({
-  mongoUrl: process.env.DATABASE_URL as string,
-  collectionName: 'sessions',
-})
+// const sessionStore = new MongoStore({
+//   mongoUrl: process.env.DATABASE_URL as string,
+//   collectionName: 'sessions',
+// })
 
-app.use(
-  session({
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24,
-    },
-    secret: process.env.SESSION_SECRET as string,
-    // @ts-ignore
-    store: sessionStore,
-  })
-)
+// app.use(
+//   session({
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: {
+//       maxAge: 1000 * 60 * 60 * 24,
+//     },
+//     secret: process.env.SESSION_SECRET as string,
+//     // @ts-ignore
+//     store: sessionStore,
+//   })
+// )
 
-app.use(passport.initialize())
-app.use(passport.session())
+// app.use(passport.initialize())
+// app.use(passport.session())
 
-app.post(
-  '/login',
-  (req, res, next) =>
-    passport.authenticate('local', { failureRedirect: '/login' })(
-      req,
-      res,
-      next
-    ),
-  (req, res) => {
-    const signedToken = signJwt(req.user)
-    res.cookie('token', signedToken, { maxAge: 1000 * 60 * 60 * 24 })
-    res.setHeader('Authorization', `Bearer ${signedToken}`)
-    return res.json({ token: signedToken })
-  }
-)
+// app.post(
+//   '/login',
+//   (req, res, next) =>
+//     passport.authenticate('local', { failureRedirect: '/login' })(
+//       req,
+//       res,
+//       next
+//     ),
+//   (req, res) => {
+//     const signedToken = signJwt(req.user)
+//     res.cookie('token', signedToken, { maxAge: 1000 * 60 * 60 * 24 })
+//     res.setHeader('Authorization', `Bearer ${signedToken}`)
+//     return res.json({ token: signedToken })
+//   }
+// )
 
-app.get('/logout', (req, res) => {
-  return req.logOut({ keepSessionInfo: false }, function (err) {
-    if (err) {
-      console.log(err)
-    }
+// app.get('/logout', (req, res) => {
+//   return req.logOut({ keepSessionInfo: false }, function (err) {
+//     if (err) {
+//       console.log(err)
+//     }
 
-    res.json({ success: true })
-  })
-})
+//     res.json({ success: true })
+//   })
+// })
 
-app.get(
-  '/test-auth',
-  (req, res, next) => {
-    console.log({ user: req.user })
-    next()
-  },
-  (req, res) => {
-    return res.send('done')
-  }
-)
+// app.get(
+//   '/test-auth',
+//   (req, res, next) => {
+//     console.log({ user: req.user })
+//     next()
+//   },
+//   (req, res) => {
+//     return res.send('done')
+//   }
+// )
 
-app.get(
-  '/auth/sign-in-with-google',
-  passport.authenticate('sign-in-with-google', {
-    scope: ['profile'],
-  })
-)
+// app.get(
+//   '/auth/sign-in-with-google',
+//   passport.authenticate('sign-in-with-google', {
+//     scope: ['profile'],
+//   })
+// )
 
-app.get(
-  '/auth/google/callback',
-  passport.authenticate('google'),
-  function (req, res) {
-    res.redirect('/')
-  }
-)
+// app.get(
+//   '/auth/google/callback',
+//   passport.authenticate('google'),
+//   function (req, res) {
+//     res.redirect('/')
+//   }
+// )
 
 app.use('/graphql', yoga)
 
-passport.use(LocalStrategyVerification)
-passport.use('sign-in-with-google', GoogleStrategyVerification)
+// passport.use(LocalStrategyVerification)
+// passport.use('sign-in-with-google', GoogleStrategyVerification)
 
-passport.serializeUser((user, done) => {
-  done(null, user)
-})
+// passport.serializeUser((user, done) => {
+//   done(null, user)
+// })
 
-passport.deserializeUser((user, done) => {
-  done(null, user)
-})
+// passport.deserializeUser((user, done) => {
+//   done(null, user)
+// })
 
 // Pass it into a server to hook into request handlers.
 const server = createServer(app)
 
-const wsServer = new WebSocketServer({
-  server: server,
-  path: yoga.graphqlEndpoint,
-})
+// const wsServer = new WebSocketServer({
+//   server: server,
+//   path: yoga.graphqlEndpoint,
+// })
 
-useServer(
-  {
-    execute: (args: any) => args.rootValue.execute(args),
-    subscribe: (args: any) => args.rootValue.subscribe(args),
-    onSubscribe: async (ctx, msg) => {
-      const { schema, execute, subscribe, contextFactory, parse, validate } =
-        yoga.getEnveloped({
-          ...ctx,
-          req: ctx.extra.request,
-          socket: ctx.extra.socket,
-          params: msg.payload,
-        })
+// useServer(
+//   {
+//     execute: (args: any) => args.rootValue.execute(args),
+//     subscribe: (args: any) => args.rootValue.subscribe(args),
+//     onSubscribe: async (ctx, msg) => {
+//       const { schema, execute, subscribe, contextFactory, parse, validate } =
+//         yoga.getEnveloped({
+//           ...ctx,
+//           req: ctx.extra.request,
+//           socket: ctx.extra.socket,
+//           params: msg.payload,
+//         })
 
-      const args = {
-        schema,
-        operationName: msg.payload.operationName,
-        document: parse(msg.payload.query),
-        variableValues: msg.payload.variables,
-        contextValue: await contextFactory(),
-        rootValue: {
-          execute,
-          subscribe,
-        },
-      }
+//       const args = {
+//         schema,
+//         operationName: msg.payload.operationName,
+//         document: parse(msg.payload.query),
+//         variableValues: msg.payload.variables,
+//         contextValue: await contextFactory(),
+//         rootValue: {
+//           execute,
+//           subscribe,
+//         },
+//       }
 
-      const errors = validate(args.schema, args.document)
-      if (errors.length) return errors
-      return args
-    },
-  },
-  wsServer
-)
+//       const errors = validate(args.schema, args.document)
+//       if (errors.length) return errors
+//       return args
+//     },
+//   },
+//   wsServer
+// )
 
 // Start the server and you're done!
 server.listen(process.env.PORT, () => {

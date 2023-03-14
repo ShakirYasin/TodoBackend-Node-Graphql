@@ -1,45 +1,18 @@
-import SchemaBuilder from '@pothos/core'
-import { Request, Response } from 'express'
-import type { User } from '@prisma/client'
-import { createPubSub } from '@graphql-yoga/node'
+import { makeSchema } from 'nexus'
+import { join } from 'path'
+import ENUMS from './graphql/ENUMS'
+import SCALARS from './graphql/SCALARS'
+import User from "./graphql/User/index"
+import Todo from "./graphql/Todo/index"
 
-export const pubsub = createPubSub()
 
-export const builder = new SchemaBuilder<{
-  Context: {
-    req: Request & { user: User }
-    res: Response
-    request: globalThis.Request
-  }
-  DefaultFieldNullability: true
-}>({ defaultFieldNullability: true })
 
-builder.mutationType({})
-builder.queryType({
-  fields: (t) => ({
-    hello: t.string({
-      resolve: () => {
-        pubsub.publish('word', `${Math.random()}`)
-        return 'world'
-      },
-    }),
-  }),
+export const schema = makeSchema({
+  types: [User, ENUMS, SCALARS, Todo],
+  outputs: {
+    typegen: join(__dirname, '..', 'nexus-typegen.ts'), // 2
+    schema: join(__dirname, '..', 'schema.graphql'), // 3
+  },
 })
-builder.subscriptionType({})
 
-const values = []
-
-builder.subscriptionField('helloSubs', (t) =>
-  t.stringList({
-    subscribe: () => pubsub.subscribe('word'),
-    resolve: (value) => {
-      values.push(value)
-
-      return values
-    },
-  })
-)
-
-require('./graphql/user')
-
-export const schema = builder.toSchema()
+// export const schema = builder.toSchema()
