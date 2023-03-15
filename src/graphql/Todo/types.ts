@@ -1,8 +1,8 @@
-import {objectType} from "nexus"
+import {inputObjectType, objectType} from "nexus"
 import { GENDER, ROLE } from "../ENUMS"
 import { DateScalar } from "../SCALARS"
 
-const Todo = objectType({
+export const Todo = objectType({
     name: 'Todo',
     definition(t) {
       t.string('id')
@@ -13,8 +13,17 @@ const Todo = objectType({
       t.field('updatedAt', { type: DateScalar })
     },
   })
+export const TodoInputType = inputObjectType({
+    name: 'TodoInputType',
+    definition(t) {
+      t.nullable.string('title')
+      t.nullable.string('description')
+      t.nullable.boolean('completed')
+    },
+  })
 
 
-export {
-    Todo
+export default {
+    Todo,
+    TodoInputType
 }

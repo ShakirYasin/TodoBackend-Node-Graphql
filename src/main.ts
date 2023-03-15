@@ -41,12 +41,14 @@ const yoga = createYoga<{ req: Request; res: Response }>({
   schema,
   context: async ({ request, req, res }) => {
     try {
-      const token =
-        req.cookies?.token || trim(req.headers.authorization, 'Bearer ')
+      let token: string =
+        req.cookies?.token || req.headers.authorization
 
-      const user = req.isAuthenticated() ? decode(token) : null
+      if(token.includes("Bearer")) {
+        token = trim(token, "Bearer ")
+      }
 
-      console.log({ user })
+      const user = decode(token)
 
       return { request, user }
     } catch (err) {
@@ -141,7 +143,7 @@ const yoga = createYoga<{ req: Request; res: Response }>({
 //   }
 // )
 
-app.use('/graphql', yoga)
+app.use('/graphql', (req, res) => yoga(req, res))
 
 // passport.use(LocalStrategyVerification)
 // passport.use('sign-in-with-google', GoogleStrategyVerification)

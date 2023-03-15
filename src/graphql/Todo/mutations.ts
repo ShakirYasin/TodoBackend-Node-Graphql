@@ -24,35 +24,38 @@ export const TodoMutations = extendType({
             }
         })
 
-        t.nonNull.field('UpdateTodo', {
-            type: "Todo",
-            args: {
-                id: nonNull(stringArg()),
-                title: nullable(stringArg()),
-                description: nullable(stringArg()),
-            },
-            resolve: async (_, args, ctx: GraphQLContext) => {
-                                
-                if(!ctx.user?.id) {
-                    throw new GraphQLError("Please Authenticate to continue...")
-                }
-                const data = await updateTodo(args);
-                return data ?? {}
-            },
-        })
-
         // t.nonNull.field('UpdateTodo', {
         //     type: "Todo",
         //     args: {
         //         id: nonNull(stringArg()),
-        //         todo: nonNull(arg({type: 'Todo'}))
+        //         title: nullable(stringArg()),
+        //         description: nullable(stringArg()),
         //     },
-        //     resolve: async (_, args) => {
+        //     resolve: async (_, args, ctx: GraphQLContext) => {
+                                
+        //         if(!ctx.user?.id) {
+        //             throw new GraphQLError("Please Authenticate to continue...")
+        //         }
         //         const data = await updateTodo(args);
-        
         //         return data ?? {}
         //     },
         // })
+
+        t.nonNull.field('UpdateTodo', {
+            type: "Todo",
+            args: {
+                id: nonNull(stringArg()),
+                todo: nonNull(arg({type: 'TodoInputType'}))
+            },
+            resolve: async (_, args, ctx: GraphQLContext) => {
+                if(!ctx.user?.id) {
+                    throw new GraphQLError("Please Authenticate to continue...")
+                }
+                const data = await updateTodo(args);
+        
+                return data ?? {}
+            },
+        })
 
         t.nonNull.field('CompleteTodo', {
             type: "Todo",

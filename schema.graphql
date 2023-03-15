@@ -20,7 +20,7 @@ type Mutation {
   CreateUser(email: Email!, name: String!, password: String!): User!
   DeleteTodo(id: String!): Todo!
   LoginUser(email: Email!, password: String!): User!
-  UpdateTodo(description: String, id: String!, title: String): Todo!
+  UpdateTodo(id: String!, todo: TodoInputType!): Todo!
 }
 
 type Query {
@@ -44,6 +44,12 @@ type Todo {
   updatedAt: DateTime
 }
 
+input TodoInputType {
+  completed: Boolean
+  description: String
+  title: String
+}
+
 type User {
   active: Boolean
   createdAt: DateTime
@@ -53,6 +59,7 @@ type User {
   gender: GENDER
   id: String
   image: String
+  jwt: String
   name: String
   password: String
   passwordResetCode: String

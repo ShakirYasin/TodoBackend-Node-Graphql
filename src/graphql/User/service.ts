@@ -49,7 +49,7 @@ export const login = async ({email, password}: {email: string, password: string}
         throw new GraphQLError('Incorrect Password')
     }
 
-    const signedJWT = signJwt({name: user.name, email})
+    const signedJWT = signJwt({id: user.id, name: user.name, email})
     
     return {...user, jwt: signedJWT}
 }

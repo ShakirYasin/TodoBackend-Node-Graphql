@@ -14,6 +14,11 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  TodoInputType: { // input type
+    completed?: boolean | null; // Boolean
+    description?: string | null; // String
+    title?: string | null; // String
+  }
 }
 
 export interface NexusGenEnums {
@@ -51,6 +56,7 @@ export interface NexusGenObjects {
     gender?: NexusGenEnums['GENDER'] | null; // GENDER
     id?: string | null; // String
     image?: string | null; // String
+    jwt?: string | null; // String
     name?: string | null; // String
     password?: string | null; // String
     passwordResetCode?: string | null; // String
@@ -102,6 +108,7 @@ export interface NexusGenFieldTypes {
     gender: NexusGenEnums['GENDER'] | null; // GENDER
     id: string | null; // String
     image: string | null; // String
+    jwt: string | null; // String
     name: string | null; // String
     password: string | null; // String
     passwordResetCode: string | null; // String
@@ -143,6 +150,7 @@ export interface NexusGenFieldTypeNames {
     gender: 'GENDER'
     id: 'String'
     image: 'String'
+    jwt: 'String'
     name: 'String'
     password: 'String'
     passwordResetCode: 'String'
@@ -176,9 +184,8 @@ export interface NexusGenArgTypes {
       password: string; // String!
     }
     UpdateTodo: { // args
-      description?: string | null; // String
       id: string; // String!
-      title?: string | null; // String
+      todo: NexusGenInputs['TodoInputType']; // TodoInputType!
     }
   }
   Query: {
@@ -199,7 +206,7 @@ export interface NexusGenTypeInterfaces {
 
 export type NexusGenObjectNames = keyof NexusGenObjects;
 
-export type NexusGenInputNames = never;
+export type NexusGenInputNames = keyof NexusGenInputs;
 
 export type NexusGenEnumNames = keyof NexusGenEnums;
 

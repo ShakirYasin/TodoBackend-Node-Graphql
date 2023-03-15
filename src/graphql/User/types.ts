@@ -1,8 +1,8 @@
-import {objectType} from "nexus"
+import {objectType, extendType} from "nexus"
 import { GENDER, ROLE } from "../ENUMS"
 import { DateScalar } from "../SCALARS"
 
-const User = objectType({
+export const User = objectType({
     name: 'User',
     definition(t) {
       t.string('id')
@@ -23,7 +23,15 @@ const User = objectType({
     },
   })
 
+ export const UserAuth = extendType({
+    type: "User",
+    definition(t) {
+      t.string('jwt')
+    },
+  })
 
-export {
-    User
+
+export default {
+    User,
+    UserAuth
 }
